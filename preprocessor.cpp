@@ -28,28 +28,38 @@ int main() {
     buf << in.rdbuf();
     std::string code = buf.str();
 
-    // 1. Проверка недопустимых символов (управляющие байты < 0x20,
-    //    кроме \n, \r, \t).
+    // 1. Проверка недопустимых символов (управляющие байты < 0x20, кроме \n, \r, \t).
     for (size_t i = 0; i < code.size(); ++i) {
         unsigned char c = static_cast<unsigned char>(code[i]);
         if (c < 0x20 && c != '\n' && c != '\r' && c != '\t') {
-            std::cerr << "Ошибка: недопустимый символ с кодом "
-                << static_cast<int>(c) << " в позиции " << i << "\n";
+            std::cerr << "Ошибка: недопустимый символ с кодом " << static_cast<int>(c) << " в позиции " << i << "\n";
             std::cin.get();
             return 1;
         }
     }
 
     // 2. Проверка незакрытого многострочного комментария /* ... */
-    size_t pos = 0;
-    while ((pos = code.find("/*", pos)) != std::string::npos) {
-        size_t end = code.find("*/", pos + 2);
-        if (end == std::string::npos) {
-           std::cerr << "Ошибка: незакрытый многострочный комментарий в позиции " << pos << "\n";
-           std::cin.get();
-           return 1;
+    int depth = 0;
+    size_t first_open = 0;
+    size_t i = 0;
+    while (i + 1 < code.size()) {
+        if (code[i] == '/' && code[i + 1] == '*') {
+            if (depth == 0) first_open = i;
+            depth++;
+            i += 2;
         }
-        pos = end + 2;
+        else if (code[i] == '*' && code[i + 1] == '/' && depth > 0) {
+            depth--;
+            i += 2;
+        }
+        else {
+            i++;
+        }
+    }
+    if (depth > 0) {
+        std::cerr << "Ошибка: незакрытый многострочный комментарий в позиции " << first_open << "\n";
+        std::cin.get();
+        return 1;
     }
 
     // 3. Удаление многострочных комментариев /* ... */
@@ -60,8 +70,7 @@ int main() {
     std::regex line_re(R"(//[^\n]*)");
     code = std::regex_replace(code, line_re, "");
 
-    // 5. Обработка построчно: обрезать края, схлопнуть пробелы,
-    //    удалить пустые строки.
+    // 5. Обработка построчно: обрезать края, схлопнуть пробелы, удалить пустые строки.
     std::regex trim_edges(R"(^[ \t]+|[ \t]+$)");
     std::regex multi_space(R"([ \t]{2,})");
     std::stringstream ss(code);

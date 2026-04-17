@@ -1,0 +1,33 @@
+# ===== Сборка Visual Studio =====
+Debug/
+Release/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.ipdb
+*.iobj
+*.exp
+*.lib
+
+# ===== Личные настройки пользователя =====
+*.vcxproj.user
+*.suo
+.vs/
+
+# ===== Кеш/временные файлы =====
+*.log
+*.tlog
+enc_temp_folder/
+
+# ===== IDE другие =====
+.idea/
+.vscode/
+
+# ===== Результат работы препроцессора =====
+output.txt

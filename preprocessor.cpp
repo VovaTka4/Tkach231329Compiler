@@ -39,25 +39,39 @@ int main() {
     }
 
     // 2. Проверка незакрытого многострочного комментария /* ... */
-    int depth = 0;
+    int openers = 0;
+    int closers = 0;
     size_t first_open = 0;
+    size_t first_close = 0;
     size_t i = 0;
     while (i + 1 < code.size()) {
         if (code[i] == '/' && code[i + 1] == '*') {
-            if (depth == 0) first_open = i;
-            depth++;
+            if (openers == 0) first_open = i;
+            openers++;
             i += 2;
         }
-        else if (code[i] == '*' && code[i + 1] == '/' && depth > 0) {
-            depth--;
-            i += 2;
-        }
+        else if (code[i] == '*' && code[i + 1] == '/') {
+            if (openers > 0) {
+                openers--;
+                i += 2;
+            }
+            else {
+                closers++;
+                first_close = i;
+                i += 2;
+            }
+        } 
         else {
             i++;
         }
     }
-    if (depth > 0) {
+    if (openers > 0) {
         std::cerr << "Ошибка: незакрытый многострочный комментарий в позиции " << first_open << "\n";
+        std::cin.get();
+        return 1;
+    }
+    else if (closers > 0) {
+        std::cerr << "Ошибка: незакрытый многострочный комментарий в позиции " << first_close << "\n";
         std::cin.get();
         return 1;
     }

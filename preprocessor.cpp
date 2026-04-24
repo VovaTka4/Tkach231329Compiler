@@ -1,40 +1,19 @@
-﻿#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
+﻿#include "preprocessor.h"
 #include <regex>
-#include <windows.h>
+#include <sstream>
 
-int main() {
-    SetConsoleOutputCP(1251);
-    SetConsoleCP(1251);
-    setlocale(LC_ALL, "Russian");
-
-    std::string inputPath, outputPath;
-
-    std::cout << "Введите имя входного файла: ";
-    std::getline(std::cin, inputPath);
-    std::cout << "Введите имя выходного файла (или Enter чтобы вывести на экран): ";
-    std::getline(std::cin, outputPath);
-
-    std::ifstream in(inputPath);
-    if (!in) {
-        std::cerr << "Ошибка: не удалось открыть файл " << inputPath << "\n";
-        std::cin.get();
-        return 1;
-    }
-
-    std::stringstream buf;
-    buf << in.rdbuf();
-    std::string code = buf.str();
+PreprocessResult preprocess(const std::string& source) {
+    PreprocessResult res;
+    std::string code = source;
 
     // 1. Проверка недопустимых символов (управляющие байты < 0x20, кроме \n, \r, \t).
     for (size_t i = 0; i < code.size(); ++i) {
         unsigned char c = static_cast<unsigned char>(code[i]);
         if (c < 0x20 && c != '\n' && c != '\r' && c != '\t') {
-            std::cerr << "Ошибка: недопустимый символ с кодом " << static_cast<int>(c) << " в позиции " << i << "\n";
-            std::cin.get();
-            return 1;
+            res.errors.push_back(
+                "недопустимый символ с кодом " + std::to_string(static_cast<int>(c)) +
+                " в позиции " + std::to_string(i));
+            return res;
         }
     }
 
@@ -60,20 +39,20 @@ int main() {
                 first_close = i;
                 i += 2;
             }
-        } 
+        }
         else {
             i++;
         }
     }
     if (openers > 0) {
-        std::cerr << "Ошибка: незакрытый многострочный комментарий в позиции " << first_open << "\n";
-        std::cin.get();
-        return 1;
+        res.errors.push_back(
+            "незакрытый многострочный комментарий в позиции " + std::to_string(first_open));
+        return res;
     }
     else if (closers > 0) {
-        std::cerr << "Ошибка: незакрытый многострочный комментарий в позиции " << first_close << "\n";
-        std::cin.get();
-        return 1;
+        res.errors.push_back(
+            "незакрытый многострочный комментарий в позиции " + std::to_string(first_close));
+        return res;
     }
 
     // 3. Удаление многострочных комментариев /* ... */
@@ -99,21 +78,6 @@ int main() {
         }
     }
 
-    if (!outputPath.empty()) {
-        std::ofstream outf(outputPath);
-        if (!outf) {
-            std::cerr << "Ошибка: не удалось создать файл " << outputPath << "\n";
-            std::cin.get();
-            return 1;
-        }
-        outf << out;
-        std::cerr << "Готово. Результат записан в " << outputPath << "\n";
-    }
-    else {
-        std::cout << out;
-    }
-
-    std::cerr << "Ошибок не выявлено\n";
-    std::cin.get();
-    return 0;
+    res.code = out;
+    return res;
 }

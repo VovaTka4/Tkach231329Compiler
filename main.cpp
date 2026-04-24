@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -14,14 +14,14 @@ int main() {
 
     std::string inputPath, outputPath;
 
-    std::cout << "Ââåäèòå èìÿ âõîäíîãî ôàéëà (èñõîäíûé êîä): ";
+    std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð¼Ñ Ð²Ñ…Ð¾Ð´Ð½Ð¾Ð³Ð¾ Ñ„Ð°Ð¹Ð»Ð° (Ð¸ÑÑ…Ð¾Ð´Ð½Ñ‹Ð¹ ÐºÐ¾Ð´): ";
     std::getline(std::cin, inputPath);
-    std::cout << "Ââåäèòå èìÿ âûõîäíîãî ôàéëà (èëè Enter ÷òîáû âûâåñòè íà ýêðàí): ";
+    std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð¼Ñ Ð²Ñ‹Ñ…Ð¾Ð´Ð½Ð¾Ð³Ð¾ Ñ„Ð°Ð¹Ð»Ð° (Ð¸Ð»Ð¸ Enter Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð²Ñ‹Ð²ÐµÑÑ‚Ð¸ Ð½Ð° ÑÐºÑ€Ð°Ð½): ";
     std::getline(std::cin, outputPath);
 
     std::ifstream in(inputPath);
     if (!in) {
-        std::cerr << "Îøèáêà: íå óäàëîñü îòêðûòü ôàéë " << inputPath << "\n";
+        std::cerr << "ÐžÑˆÐ¸Ð±ÐºÐ°: Ð½Ðµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ñ„Ð°Ð¹Ð» " << inputPath << "\n";
         std::cin.get();
         return 1;
     }
@@ -29,27 +29,27 @@ int main() {
     buf << in.rdbuf();
     std::string source = buf.str();
 
-    // ===== ËÐ1: ïðåïðîöåññîð =====
+    // ===== Ð›Ð 1: Ð¿Ñ€ÐµÐ¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€ =====
     PreprocessResult pre = preprocess(source);
     if (!pre.ok()) {
-        std::cerr << "Îøèáêè ïðåïðîöåññîðà:\n";
+        std::cerr << "ÐžÑˆÐ¸Ð±ÐºÐ¸ Ð¿Ñ€ÐµÐ¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð°:\n";
         for (auto& e : pre.errors) std::cerr << "  " << e << "\n";
         std::cin.get();
         return 1;
     }
 
-    // ===== ËÐ2: ëåêñè÷åñêèé àíàëèçàòîð =====
+    // ===== Ð›Ð 2: Ð»ÐµÐºÑÐ¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð°Ð½Ð°Ð»Ð¸Ð·Ð°Ñ‚Ð¾Ñ€ =====
     LexResult lex = tokenize(pre.code);
 
-    // ===== ôîðìèðîâàíèå îò÷¸òà =====
+    // ===== Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¾Ñ‚Ñ‡Ñ‘Ñ‚Ð° =====
     std::ostringstream oss;
 
-    oss << inputPath << " (î÷èùåííûé ðåçóëüòàò ËÐ1)\n";
+    oss << inputPath << " (Ð¾Ñ‡Ð¸Ñ‰ÐµÐ½Ð½Ñ‹Ð¹ Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚ Ð›Ð 1)\n";
     oss << pre.code;
     if (pre.code.empty() || pre.code.back() != '\n') oss << "\n";
 
-    oss << "\nÐåçóëüòàò\n";
-    oss << "Ëåêñåìà              | Òèï\n";
+    oss << "\nÐ ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚\n";
+    oss << "Ð›ÐµÐºÑÐµÐ¼Ð°              | Ð¢Ð¸Ð¿\n";
     oss << "---------------------+--------------------\n";
     for (auto& t : lex.tokens) {
         std::string v = t.value;
@@ -65,24 +65,24 @@ int main() {
     oss << "]\n\n";
 
     if (lex.ok()) {
-        oss << "Ëåêñè÷åñêèé àíàëèç çàâåðø¸í óñïåøíî. Îáíàðóæåíî "
-            << lex.tokens.size() << " òîêåíîâ. Îøèáîê íå íàéäåíî.\n";
+        oss << "Ð›ÐµÐºÑÐ¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð°Ð½Ð°Ð»Ð¸Ð· Ð·Ð°Ð²ÐµÑ€ÑˆÑ‘Ð½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. ÐžÐ±Ð½Ð°Ñ€ÑƒÐ¶ÐµÐ½Ð¾ "
+            << lex.tokens.size() << " Ñ‚Ð¾ÐºÐµÐ½Ð¾Ð². ÐžÑˆÐ¸Ð±Ð¾Ðº Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾.\n";
     }
     else {
-        oss << "Ëåêñè÷åñêèé àíàëèç çàâåðø¸í ñ îøèáêàìè. Òîêåíîâ: "
-            << lex.tokens.size() << ". Îøèáîê: " << lex.errors.size() << "\n";
+        oss << "Ð›ÐµÐºÑÐ¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð°Ð½Ð°Ð»Ð¸Ð· Ð·Ð°Ð²ÐµÑ€ÑˆÑ‘Ð½ Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ°Ð¼Ð¸. Ð¢Ð¾ÐºÐµÐ½Ð¾Ð²: "
+            << lex.tokens.size() << ". ÐžÑˆÐ¸Ð±Ð¾Ðº: " << lex.errors.size() << "\n";
         for (auto& e : lex.errors) oss << "  " << e << "\n";
     }
 
     if (!outputPath.empty()) {
         std::ofstream outf(outputPath);
         if (!outf) {
-            std::cerr << "Îøèáêà: íå óäàëîñü ñîçäàòü ôàéë " << outputPath << "\n";
+            std::cerr << "ÐžÑˆÐ¸Ð±ÐºÐ°: Ð½Ðµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑÐ¾Ð·Ð´Ð°Ñ‚ÑŒ Ñ„Ð°Ð¹Ð» " << outputPath << "\n";
             std::cin.get();
             return 1;
         }
         outf << oss.str();
-        std::cerr << "Ãîòîâî. Ðåçóëüòàò çàïèñàí â " << outputPath << "\n";
+        std::cerr << "Ð“Ð¾Ñ‚Ð¾Ð²Ð¾. Ð ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚ Ð·Ð°Ð¿Ð¸ÑÐ°Ð½ Ð² " << outputPath << "\n";
     }
     else {
         std::cout << oss.str();

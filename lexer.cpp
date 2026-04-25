@@ -1,7 +1,6 @@
 ﻿#include "lexer.h"
 #include <set>
 
-// ---- таблицы лексем ----
 static const std::set<std::string> KEYWORDS = {
     "fn", "let", "mut", "if", "else", "while", "for", "in", "return",
     "i32", "f64", "bool"
@@ -33,7 +32,6 @@ std::string typeName(TokType t) {
     return "?";
 }
 
-// множество символов, из которых состоят операторы
 static bool isOpChar(char c) {
     static const std::string opChars = "+-*/%=!<>&|^.?";
     return opChars.find(c) != std::string::npos;
@@ -140,7 +138,6 @@ LexResult tokenize(const std::string& code) {
             }
             bool isFloat = false;
 
-            // точка как часть дроби, НО не ".." (оператор диапазона)
             if (i + 1 < code.size() && code[i] == '.' &&
                 code[i + 1] != '.' && isDigitCh(code[i + 1])) {
                 isFloat = true;
@@ -150,7 +147,6 @@ LexResult tokenize(const std::string& code) {
                     s += code[i];
                     advance();
                 }
-                // ещё одна точка подряд — ошибка
                 if (i < code.size() && code[i] == '.' &&
                     (i + 1 >= code.size() || code[i + 1] != '.')) {
                     std::string bad = s;
@@ -165,7 +161,15 @@ LexResult tokenize(const std::string& code) {
                 }
             }
 
-            // буква сразу за числом — ошибка
+            if (i < code.size() && code[i] == ',') {
+                res.errors.push_back(
+                    "Ошибка [строка " + std::to_string(startLine) + "]: некорректная числова константа '" +
+                    s + ",' (используйте точку для набора чисел с плаващей точкой)"
+                );
+                advance();
+                continue;
+            }
+
             if (i < code.size() && (isIdStart(code[i]) ||
                 static_cast<unsigned char>(code[i]) >= 0x80)) {
                 std::string bad = s;

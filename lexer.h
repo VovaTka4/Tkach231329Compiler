@@ -10,8 +10,6 @@ enum class TokType {
 
 std::string typeName(TokType t);
 
-// Токен — тот самый «объект с двумя полями», передаваемый синтаксическому анализатору.
-// line/col — для диагностики ошибок.
 struct Token {
     TokType type;
     std::string value;

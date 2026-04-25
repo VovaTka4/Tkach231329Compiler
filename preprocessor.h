@@ -2,9 +2,6 @@
 #include <string>
 #include <vector>
 
-// Результат работы препроцессора (ЛР1).
-// code  — очищенный код (без комментариев, лишних пробелов и пустых строк);
-// errors — непустой, если были обнаружены ошибки (тогда code пустой).
 struct PreprocessResult {
     std::string code;
     std::vector<std::string> errors;

@@ -6,7 +6,7 @@ PreprocessResult preprocess(const std::string& source) {
     PreprocessResult res;
     std::string code = source;
 
-    // 1. Проверка недопустимых символов (управляющие байты < 0x20, кроме \n, \r, \t).
+    // 1. Проверка недопустимых символов
     for (size_t i = 0; i < code.size(); ++i) {
         unsigned char c = static_cast<unsigned char>(code[i]);
         if (c < 0x20 && c != '\n' && c != '\r' && c != '\t') {
@@ -17,7 +17,7 @@ PreprocessResult preprocess(const std::string& source) {
         }
     }
 
-    // 2. Проверка незакрытого многострочного комментария /* ... */
+    // 2. Проверка незакрытого многострочного комментария
     int openers = 0;
     int closers = 0;
     size_t first_open = 0;
@@ -55,11 +55,11 @@ PreprocessResult preprocess(const std::string& source) {
         return res;
     }
 
-    // 3. Удаление многострочных комментариев /* ... */
+    // 3. Удаление многострочных комментариев
     std::regex block_re(R"(/\*[\s\S]*?\*/)");
     code = std::regex_replace(code, block_re, "");
 
-    // 4. Удаление однострочных комментариев // ...
+    // 4. Удаление однострочных комментариев
     std::regex line_re(R"(//[^\n]*)");
     code = std::regex_replace(code, line_re, "");
 

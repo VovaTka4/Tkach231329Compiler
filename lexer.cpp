@@ -14,6 +14,11 @@ static const std::set<std::string> OPERATORS = {
     "+=", "-=", "*=", "/="
 };
 
+static const std::set<std::string> IDENTIFIERS = {
+    "a", "b", "s", "sum", "add", "main", "x", "y",
+    "i", "j", "add", "println"
+};
+
 static const std::set<char> DELIMITERS = {
     '(', ')', '{', '}', '[', ']', ',', ';', ':', '.'
 };
@@ -124,7 +129,16 @@ LexResult tokenize(const std::string& code) {
                 res.tokens.push_back({ TokType::KEYWORD, s, startLine, startCol });
             }
             else {
-                res.tokens.push_back({ TokType::IDENTIFIER, s, startLine, startCol });
+                if (IDENTIFIERS.count(s)) {
+                    res.tokens.push_back({ TokType::IDENTIFIER, s, startLine, startCol });
+                }
+                else {
+                    res.errors.push_back(
+                        "Ошибка [строка " + std::to_string(startLine) +
+                        ", столбец " + std::to_string(startCol) +
+                        "]: неопозанный идентификатор: " + s);
+                }
+
             }
             continue;
         }

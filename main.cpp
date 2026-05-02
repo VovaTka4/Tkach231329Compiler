@@ -6,6 +6,7 @@
 
 #include "preprocessor.h"
 #include "lexer.h"
+#include "parser.h"
 
 int main() {
     SetConsoleOutputCP(1251);
@@ -40,48 +41,46 @@ int main() {
 
     // ===== ЛР2: лексический анализатор =====
     LexResult lex = tokenize(pre.code);
-
-    // ===== формирование отчёта =====
-    std::ostringstream oss;
-
-    oss << inputPath << " (очищенный результат ЛР1)\n";
-    oss << pre.code;
-    if (pre.code.empty() || pre.code.back() != '\n') oss << "\n";
-
-    oss << "\nРезультат\n";
-    oss << "Лексема              | Тип\n";
-    oss << "---------------------+--------------------\n";
-    for (auto& t : lex.tokens) {
-        std::string v = t.value;
-        if (v.size() < 20) v += std::string(20 - v.size(), ' ');
-        oss << v << " | " << typeName(t.type) << "\n";
+    if (!lex.ok()) {
+        std::cerr << "Лексические ошибки:\n";
+        for (auto& e : lex.errors) std::cerr << "  " << e << "\n";
+        std::cin.get();
+        return 1;
     }
 
-    oss << "\n[";
+    // ==== ЛР3: синтаксический анализатор ====
+    ParseResult par = parse(lex.tokens);
+    std::ostringstream oss;
+
+    oss << "Входные данные (поток токенов из ЛР2):\n[";
     for (size_t k = 0; k < lex.tokens.size(); ++k) {
         if (k) oss << ", ";
-        oss << "(" << typeName(lex.tokens[k].type) << ", " << lex.tokens[k].value << ")";
+        oss << "(" << typeName(lex.tokens[k].type) << ", "
+            << lex.tokens[k].value << ")";
     }
     oss << "]\n\n";
 
-    if (lex.ok()) {
-        oss << "Лексический анализ завершён успешно. Обнаружено "
-            << lex.tokens.size() << " токенов. Ошибок не найдено.\n";
+    oss << "Результат (AST):\n";
+    printAst(oss, par.ast);
+    oss << "\n";
+
+    if (par.ok()) {
+        oss << "Синтаксический анализ завершён успешно. Ошибок не найдено.\n";
     }
     else {
-        oss << "Лексический анализ завершён с ошибками. Токенов: "
-            << lex.tokens.size() << ". Ошибок: " << lex.errors.size() << "\n";
-        for (auto& e : lex.errors) oss << "  " << e << "\n";
+        oss << "Синтаксический анализ завершён с ошибками. Ошибок: "
+            << par.errors.size() << "\n";
+        for (auto& e : par.errors) oss << "  " << e << "\n";
     }
 
     if (!outputPath.empty()) {
-        std::ofstream outf(outputPath);
-        if (!outf) {
+        std::ofstream of(outputPath);
+        if (!of) {
             std::cerr << "Ошибка: не удалось создать файл " << outputPath << "\n";
             std::cin.get();
             return 1;
         }
-        outf << oss.str();
+        of << oss.str();
         std::cerr << "Готово. Результат записан в " << outputPath << "\n";
     }
     else {

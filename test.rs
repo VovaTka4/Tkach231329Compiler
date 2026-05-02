@@ -13,7 +13,7 @@ fn main() {
     let s: i32 = 123;          /* второе слагаемое */
     let mut sum: i32 = 0;
     sum = add(x, y);          // вызов функции
-    qwet;
+    
     if sum > 0 && x != y {
         println!("положительно");
     } else {

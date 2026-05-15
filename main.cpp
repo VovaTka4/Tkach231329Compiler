@@ -4,9 +4,10 @@
 #include <string>
 #include <windows.h>
 
-#include "preprocessor.h"
-#include "lexer.h"
-#include "parser.h"
+#include "preprocessor.h"   // ЛР1
+#include "lexer.h"          // ЛР2
+#include "parser.h"         // ЛР3
+#include "semantic.h"       // ЛР4
 
 int main() {
     SetConsoleOutputCP(1251);
@@ -48,30 +49,47 @@ int main() {
         return 1;
     }
 
-    // ==== ЛР3: синтаксический анализатор ====
+    // ===== ЛР3: синтаксический анализатор =====
     ParseResult par = parse(lex.tokens);
+
     std::ostringstream oss;
 
-    oss << "Входные данные (поток токенов из ЛР2):\n[";
-    for (size_t k = 0; k < lex.tokens.size(); ++k) {
-        if (k) oss << ", ";
-        oss << "(" << typeName(lex.tokens[k].type) << ", "
-            << lex.tokens[k].value << ")";
-    }
-    oss << "]\n\n";
-
-    oss << "Результат (AST):\n";
-    printAst(oss, par.ast);
-    oss << "\n";
-
-    if (par.ok()) {
-        oss << "Синтаксический анализ завершён успешно. Ошибок не найдено.\n";
-    }
-    else {
+    if (!par.ok()) {
         oss << "Синтаксический анализ завершён с ошибками. Ошибок: "
             << par.errors.size() << "\n";
         for (auto& e : par.errors) oss << "  " << e << "\n";
+        // С невалидным AST смысла идти в семантический анализ нет.
+        if (!outputPath.empty()) {
+            std::ofstream of(outputPath);
+            of << oss.str();
+        }
+        else {
+            std::cout << oss.str();
+        }
+        std::cin.get();
+        return 1;
     }
+    else {
+        oss << "Синтаксический анализ завершён успешно. Ошибок не найдено.\n\n";
+    }
+
+    // ===== ЛР4: семантический анализ + промежуточное представление =====
+    SemanticResult sem = analyze(par.ast);
+
+    printSymbolTable(oss, sem.symbols);
+    oss << "\n";
+
+    if (sem.ok()) {
+        oss << "Семантический анализ завершён успешно. Ошибок не найдено.\n\n";
+    }
+    else {
+        oss << "Семантический анализ завершён с ошибками. Ошибок: "
+            << sem.errors.size() << "\n";
+        for (auto& e : sem.errors) oss << "  " << e << "\n";
+        oss << "\n";
+    }
+
+    printTriads(oss, sem.triads);
 
     if (!outputPath.empty()) {
         std::ofstream of(outputPath);

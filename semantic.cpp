@@ -1,4 +1,4 @@
-#include "semantic.h"
+п»ї#include "semantic.h"
 #include <map>
 #include <sstream>
 #include <iomanip>
@@ -11,18 +11,18 @@ namespace {
     };
 
     struct Sema {
-        std::vector<Scope> scopes;          // стек областей видимости
-        std::vector<Symbol> symbols;        // все объявленные символы по порядку
-        std::vector<Triad> triads;          // итоговые триады
-        std::vector<std::string> errors;    // семантические ошибки
-        int labelCounter = 0;               // счётчик для генерации меток L1, L2, ...
-        std::string currentFunc;            // имя анализируемой функции
-        std::string currentReturnType;      // её тип возврата
+        std::vector<Scope> scopes;          // СЃС‚РµРє РѕР±Р»Р°СЃС‚РµР№ РІРёРґРёРјРѕСЃС‚Рё
+        std::vector<Symbol> symbols;        // РІСЃРµ РѕР±СЉСЏРІР»РµРЅРЅС‹Рµ СЃРёРјРІРѕР»С‹ РїРѕ РїРѕСЂСЏРґРєСѓ
+        std::vector<Triad> triads;          // РёС‚РѕРіРѕРІС‹Рµ С‚СЂРёР°РґС‹
+        std::vector<std::string> errors;    // СЃРµРјР°РЅС‚РёС‡РµСЃРєРёРµ РѕС€РёР±РєРё
+        int labelCounter = 0;               // СЃС‡С‘С‚С‡РёРє РґР»СЏ РіРµРЅРµСЂР°С†РёРё РјРµС‚РѕРє L1, L2, ...
+        std::string currentFunc;            // РёРјСЏ Р°РЅР°Р»РёР·РёСЂСѓРµРјРѕР№ С„СѓРЅРєС†РёРё
+        std::string currentReturnType;      // РµС‘ С‚РёРї РІРѕР·РІСЂР°С‚Р°
 
-        // Информация о результате выражения
+        // РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РІС‹СЂР°Р¶РµРЅРёСЏ
         struct ExprInfo {
-            std::string type; //тип выражения
-            std::string operand; //как ссылаться на это значение в триаде (имя/литерал/^N)
+            std::string type; //С‚РёРї РІС‹СЂР°Р¶РµРЅРёСЏ
+            std::string operand; //РєР°Рє СЃСЃС‹Р»Р°С‚СЊСЃСЏ РЅР° СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РІ С‚СЂРёР°РґРµ (РёРјСЏ/Р»РёС‚РµСЂР°Р»/^N)
         };
 
         void pushScope(const std::string& name) {
@@ -30,7 +30,7 @@ namespace {
         }
         void popScope() { scopes.pop_back(); }
 
-        // Поиск символа от вершины стека к глобальной области.
+        // РџРѕРёСЃРє СЃРёРјРІРѕР»Р° РѕС‚ РІРµСЂС€РёРЅС‹ СЃС‚РµРєР° Рє РіР»РѕР±Р°Р»СЊРЅРѕР№ РѕР±Р»Р°СЃС‚Рё.
         Symbol* lookup(const std::string& name) {
             for (auto it = scopes.rbegin(); it != scopes.rend(); ++it) {
                 auto f = it->table.find(name);
@@ -39,21 +39,21 @@ namespace {
             return nullptr;
         }
 
-        // Объявить символ в текущей (верхней) области.
-        // Если имя уже занято — выводим ошибку повторного объявления.
+        // РћР±СЉСЏРІРёС‚СЊ СЃРёРјРІРѕР» РІ С‚РµРєСѓС‰РµР№ (РІРµСЂС…РЅРµР№) РѕР±Р»Р°СЃС‚Рё.
+        // Р•СЃР»Рё РёРјСЏ СѓР¶Рµ Р·Р°РЅСЏС‚Рѕ вЂ” РІС‹РІРѕРґРёРј РѕС€РёР±РєСѓ РїРѕРІС‚РѕСЂРЅРѕРіРѕ РѕР±СЉСЏРІР»РµРЅРёСЏ.
         void declare(const Symbol& s) {
             auto& top = scopes.back();
             if (top.table.count(s.name)) {
                 errors.push_back(
-                    "Семантическая ошибка: повторное объявление имени '" +
-                    s.name + "' в области '" + top.name + "'");
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РїРѕРІС‚РѕСЂРЅРѕРµ РѕР±СЉСЏРІР»РµРЅРёРµ РёРјРµРЅРё '" +
+                    s.name + "' РІ РѕР±Р»Р°СЃС‚Рё '" + top.name + "'");
                 return;
             }
             top.table[s.name] = s;
             symbols.push_back(s);
         }
 
-        // ----------- генерация триад и меток -----------
+        // ----------- РіРµРЅРµСЂР°С†РёСЏ С‚СЂРёР°Рґ Рё РјРµС‚РѕРє -----------
         std::string newLabel() {
             return "L" + std::to_string(++labelCounter);
         }
@@ -69,17 +69,17 @@ namespace {
             return t.number;
         }
 
-        // ----------- анализ выражений -----------
+        // ----------- Р°РЅР°Р»РёР· РІС‹СЂР°Р¶РµРЅРёР№ -----------
         ExprInfo analyzeExpr(const NodePtr& n);
 
-        // ----------- анализ инструкций и блоков -----------
+        // ----------- Р°РЅР°Р»РёР· РёРЅСЃС‚СЂСѓРєС†РёР№ Рё Р±Р»РѕРєРѕРІ -----------
         void analyzeStmt(const NodePtr& n);
         void analyzeBlock(const NodePtr& n);
         void analyzeFunction(const NodePtr& fn);
         void analyzeProgram(const NodePtr& prog);
     };
 
-    // Анализ выражений
+    // РђРЅР°Р»РёР· РІС‹СЂР°Р¶РµРЅРёР№
     Sema::ExprInfo Sema::analyzeExpr(const NodePtr& n) {
         if (!n) return { "", "_" };
 
@@ -98,7 +98,7 @@ namespace {
             Symbol* s = lookup(n->name);
             if (!s) {
                 errors.push_back(
-                    "Семантическая ошибка: использование необъявленной переменной '"
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РЅРµРѕР±СЉСЏРІР»РµРЅРЅРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ '"
                     + n->name + "'");
                 return { "<error>", n->name };
             }
@@ -114,14 +114,14 @@ namespace {
             if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%") {
                 if (L.type != R.type) {
                     errors.push_back(
-                        "Семантическая ошибка: операция '" + op +
-                        "' требует одинаковые числовые типы (получено " +
-                        L.type + " и " + R.type + ")");
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РѕРїРµСЂР°С†РёСЏ '" + op +
+                        "' С‚СЂРµР±СѓРµС‚ РѕРґРёРЅР°РєРѕРІС‹Рµ С‡РёСЃР»РѕРІС‹Рµ С‚РёРїС‹ (РїРѕР»СѓС‡РµРЅРѕ " +
+                        L.type + " Рё " + R.type + ")");
                 }
                 if (L.type != "i32" && L.type != "f64" && L.type != "<error>") {
                     errors.push_back(
-                        "Семантическая ошибка: операция '" + op +
-                        "' требует числовой тип (получено " + L.type + ")");
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РѕРїРµСЂР°С†РёСЏ '" + op +
+                        "' С‚СЂРµР±СѓРµС‚ С‡РёСЃР»РѕРІРѕР№ С‚РёРї (РїРѕР»СѓС‡РµРЅРѕ " + L.type + ")");
                 }
                 resultType = L.type;
             }
@@ -129,24 +129,24 @@ namespace {
                 op == ">" || op == "<=" || op == ">=") {
                 if (L.type != R.type) {
                     errors.push_back(
-                        "Семантическая ошибка: операция сравнения '" + op +
-                        "' требует одинаковые типы операндов (получено " +
-                        L.type + " и " + R.type + ")");
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РѕРїРµСЂР°С†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ '" + op +
+                        "' С‚СЂРµР±СѓРµС‚ РѕРґРёРЅР°РєРѕРІС‹Рµ С‚РёРїС‹ РѕРїРµСЂР°РЅРґРѕРІ (РїРѕР»СѓС‡РµРЅРѕ " +
+                        L.type + " Рё " + R.type + ")");
                 }
                 resultType = "bool";
             }
             else if (op == "&&" || op == "||") {
                 if (L.type != "bool" || R.type != "bool") {
                     errors.push_back(
-                        "Семантическая ошибка: операция '" + op +
-                        "' требует операнды типа bool (получено " +
-                        L.type + " и " + R.type + ")");
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РѕРїРµСЂР°С†РёСЏ '" + op +
+                        "' С‚СЂРµР±СѓРµС‚ РѕРїРµСЂР°РЅРґС‹ С‚РёРїР° bool (РїРѕР»СѓС‡РµРЅРѕ " +
+                        L.type + " Рё " + R.type + ")");
                 }
                 resultType = "bool";
             }
             else {
                 errors.push_back(
-                    "Семантическая ошибка: неизвестная бинарная операция '" + op + "'");
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РЅРµРёР·РІРµСЃС‚РЅР°СЏ Р±РёРЅР°СЂРЅР°СЏ РѕРїРµСЂР°С†РёСЏ '" + op + "'");
             }
 
             int idx = emit(op, L.operand, R.operand);
@@ -155,31 +155,31 @@ namespace {
 
         case NodeKind::CallExpr: {
             Symbol* f = lookup(n->name);
-            if (!f || f->category != "функция") {
+            if (!f || f->category != "С„СѓРЅРєС†РёСЏ") {
                 errors.push_back(
-                    "Семантическая ошибка: вызов необъявленной функции '"
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РІС‹Р·РѕРІ РЅРµРѕР±СЉСЏРІР»РµРЅРЅРѕР№ С„СѓРЅРєС†РёРё '"
                     + n->name + "'");
             }
 
             std::vector<ExprInfo> args;
             for (auto& a : n->args) args.push_back(analyzeExpr(a));
 
-            if (f && f->category == "функция") {
+            if (f && f->category == "С„СѓРЅРєС†РёСЏ") {
                 if (args.size() != f->paramTypes.size()) {
                     errors.push_back(
-                        "Семантическая ошибка: функция '" + n->name +
-                        "' ожидает " + std::to_string(f->paramTypes.size()) +
-                        " аргумент(ов), получено " + std::to_string(args.size()));
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: С„СѓРЅРєС†РёСЏ '" + n->name +
+                        "' РѕР¶РёРґР°РµС‚ " + std::to_string(f->paramTypes.size()) +
+                        " Р°СЂРіСѓРјРµРЅС‚(РѕРІ), РїРѕР»СѓС‡РµРЅРѕ " + std::to_string(args.size()));
                 }
                 else {
                     for (size_t i = 0; i < args.size(); ++i) {
                         if (args[i].type != f->paramTypes[i] &&
                             args[i].type != "<error>") {
                             errors.push_back(
-                                "Семантическая ошибка: тип аргумента №" +
-                                std::to_string(i + 1) + " вызова '" + n->name +
-                                "': ожидается " + f->paramTypes[i] +
-                                ", получено " + args[i].type);
+                                "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: С‚РёРї Р°СЂРіСѓРјРµРЅС‚Р° в„–" +
+                                std::to_string(i + 1) + " РІС‹Р·РѕРІР° '" + n->name +
+                                "': РѕР¶РёРґР°РµС‚СЃСЏ " + f->paramTypes[i] +
+                                ", РїРѕР»СѓС‡РµРЅРѕ " + args[i].type);
                         }
                     }
                 }
@@ -204,7 +204,7 @@ namespace {
             return { "<error>", "_" };
         }
     }
-    // Анализ инструкций
+    // РђРЅР°Р»РёР· РёРЅСЃС‚СЂСѓРєС†РёР№
     void Sema::analyzeStmt(const NodePtr& n) {
         if (!n) return;
 
@@ -213,13 +213,13 @@ namespace {
             ExprInfo init = analyzeExpr(n->init);
             if (init.type != n->typeName && init.type != "<error>") {
                 errors.push_back(
-                    "Семантическая ошибка: тип выражения-инициализатора '" +
-                    init.type + "' не совпадает с типом переменной '" +
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: С‚РёРї РІС‹СЂР°Р¶РµРЅРёСЏ-РёРЅРёС†РёР°Р»РёР·Р°С‚РѕСЂР° '" +
+                    init.type + "' РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ С‚РёРїРѕРј РїРµСЂРµРјРµРЅРЅРѕР№ '" +
                     n->name + "' (" + n->typeName + ")");
             }
             Symbol s;
             s.name = n->name;
-            s.category = "переменная";
+            s.category = "РїРµСЂРµРјРµРЅРЅР°СЏ";
             s.type = n->typeName;
             s.scope = scopes.back().name;
             s.isMutable = n->isMutable;
@@ -236,27 +236,27 @@ namespace {
 
             if (!sym) {
                 errors.push_back(
-                    "Семантическая ошибка: присваивание необъявленной переменной '"
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РїСЂРёСЃРІР°РёРІР°РЅРёРµ РЅРµРѕР±СЉСЏРІР»РµРЅРЅРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ '"
                     + lhsName + "'");
             }
             else {
-                if (sym->category == "параметр") {
+                if (sym->category == "РїР°СЂР°РјРµС‚СЂ") {
                     errors.push_back(
-                        "Семантическая ошибка: нельзя присваивать значение параметру функции '"
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РЅРµР»СЊР·СЏ РїСЂРёСЃРІР°РёРІР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ РїР°СЂР°РјРµС‚СЂСѓ С„СѓРЅРєС†РёРё '"
                         + lhsName + "'");
                 }
                 else if (!sym->isMutable) {
                     errors.push_back(
-                        "Семантическая ошибка: присваивание неизменяемой переменной '"
-                        + lhsName + "' (объявите её через 'let mut')");
+                        "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РїСЂРёСЃРІР°РёРІР°РЅРёРµ РЅРµРёР·РјРµРЅСЏРµРјРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ '"
+                        + lhsName + "' (РѕР±СЉСЏРІРёС‚Рµ РµС‘ С‡РµСЂРµР· 'let mut')");
                 }
             }
 
             ExprInfo rhs = analyzeExpr(n->right);
             if (sym && rhs.type != sym->type && rhs.type != "<error>") {
                 errors.push_back(
-                    "Семантическая ошибка: тип правой части '" + rhs.type +
-                    "' не совпадает с типом переменной '" + lhsName +
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: С‚РёРї РїСЂР°РІРѕР№ С‡Р°СЃС‚Рё '" + rhs.type +
+                    "' РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ С‚РёРїРѕРј РїРµСЂРµРјРµРЅРЅРѕР№ '" + lhsName +
                     "' (" + sym->type + ")");
             }
             if (sym) sym->initialized = true;
@@ -268,7 +268,7 @@ namespace {
             ExprInfo cond = analyzeExpr(n->condition);
             if (cond.type != "bool" && cond.type != "<error>") {
                 errors.push_back(
-                    "Семантическая ошибка: условие if должно иметь тип bool (получено "
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: СѓСЃР»РѕРІРёРµ if РґРѕР»Р¶РЅРѕ РёРјРµС‚СЊ С‚РёРї bool (РїРѕР»СѓС‡РµРЅРѕ "
                     + cond.type + ")");
             }
             std::string Lelse = newLabel();
@@ -300,7 +300,7 @@ namespace {
             ExprInfo cond = analyzeExpr(n->condition);
             if (cond.type != "bool" && cond.type != "<error>") {
                 errors.push_back(
-                    "Семантическая ошибка: условие while должно иметь тип bool (получено "
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: СѓСЃР»РѕРІРёРµ while РґРѕР»Р¶РЅРѕ РёРјРµС‚СЊ С‚РёРї bool (РїРѕР»СѓС‡РµРЅРѕ "
                     + cond.type + ")");
             }
             emit("jumpcheck", cond.operand, Lend);
@@ -320,22 +320,22 @@ namespace {
             std::string itType = a.type;
             if (a.type != b.type) {
                 errors.push_back(
-                    "Семантическая ошибка: границы диапазона for должны иметь одинаковый тип");
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РіСЂР°РЅРёС†С‹ РґРёР°РїР°Р·РѕРЅР° for РґРѕР»Р¶РЅС‹ РёРјРµС‚СЊ РѕРґРёРЅР°РєРѕРІС‹Р№ С‚РёРї");
             }
             if (itType != "i32" && itType != "<error>") {
                 errors.push_back(
-                    "Семантическая ошибка: границы диапазона for должны быть целочисленными ("
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: РіСЂР°РЅРёС†С‹ РґРёР°РїР°Р·РѕРЅР° for РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹РјРё ("
                     + itType + ")");
                 itType = "i32";
             }
 
             int rngIdx = emit("range", a.operand, b.operand);
 
-            pushScope("for-блок в " + currentFunc);
+            pushScope("for-Р±Р»РѕРє РІ " + currentFunc);
 
             Symbol s;
             s.name = n->name;
-            s.category = "переменная";
+            s.category = "РїРµСЂРµРјРµРЅРЅР°СЏ";
             s.type = itType;
             s.scope = scopes.back().name;
             s.isMutable = false;
@@ -369,7 +369,7 @@ namespace {
         }
     }
 
-    // Анализ блока { ... }
+    // РђРЅР°Р»РёР· Р±Р»РѕРєР° { ... }
     void Sema::analyzeBlock(const NodePtr& blk) {
         if (!blk) return;
         for (auto& s : blk->stmts) analyzeStmt(s);
@@ -380,15 +380,15 @@ namespace {
                 r.type != currentReturnType &&
                 r.type != "<error>") {
                 errors.push_back(
-                    "Семантическая ошибка: тип возвращаемого значения '" + r.type +
-                    "' не совпадает с типом возврата функции '" + currentFunc +
+                    "РЎРµРјР°РЅС‚РёС‡РµСЃРєР°СЏ РѕС€РёР±РєР°: С‚РёРї РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ '" + r.type +
+                    "' РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ С‚РёРїРѕРј РІРѕР·РІСЂР°С‚Р° С„СѓРЅРєС†РёРё '" + currentFunc +
                     "' (" + currentReturnType + ")");
             }
             emit("return", r.operand, "_");
         }
     }
 
-    // Анализ объявления функции
+    // РђРЅР°Р»РёР· РѕР±СЉСЏРІР»РµРЅРёСЏ С„СѓРЅРєС†РёРё
     void Sema::analyzeFunction(const NodePtr& fn) {
         currentFunc = fn->name;
         currentReturnType = fn->hasReturnType ? fn->typeName : "()";
@@ -397,7 +397,7 @@ namespace {
         for (auto& p : fn->params) {
             Symbol s;
             s.name = p->name;
-            s.category = "параметр";
+            s.category = "РїР°СЂР°РјРµС‚СЂ";
             s.type = p->typeName;
             s.scope = fn->name;
             s.isMutable = false;
@@ -409,7 +409,7 @@ namespace {
         popScope();
     }
 
-    // Анализ всей программы
+    // РђРЅР°Р»РёР· РІСЃРµР№ РїСЂРѕРіСЂР°РјРјС‹
     void Sema::analyzeProgram(const NodePtr& prog) {
         if (!prog) return;
         pushScope("global");
@@ -419,14 +419,14 @@ namespace {
 
             Symbol s;
             s.name = fn->name;
-            s.category = "функция";
+            s.category = "С„СѓРЅРєС†РёСЏ";
             s.scope = "global";
             s.declared = true;
             s.initialized = true;
             s.returnType = fn->hasReturnType ? fn->typeName : "()";
             for (auto& p : fn->params) s.paramTypes.push_back(p->typeName);
 
-            // Текстовое представление сигнатуры — для таблицы.
+            // РўРµРєСЃС‚РѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ СЃРёРіРЅР°С‚СѓСЂС‹ вЂ” РґР»СЏ С‚Р°Р±Р»РёС†С‹.
             std::string sig = "(";
             for (size_t i = 0; i < s.paramTypes.size(); ++i) {
                 if (i) sig += ", ";
@@ -459,11 +459,11 @@ SemanticResult analyze(const NodePtr& ast) {
     return r;
 }
 
-// Печать таблицы символов
+// РџРµС‡Р°С‚СЊ С‚Р°Р±Р»РёС†С‹ СЃРёРјРІРѕР»РѕРІ
 void printSymbolTable(std::ostream& out, const std::vector<Symbol>& syms) {
-    out << "Таблица символов:\n";
+    out << "РўР°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ:\n";
     out << "+----+--------+------------+----------------------+-----------------+-----+----------+----------------+\n";
-    out << "| №  | Имя    | Категория  | Тип                  | Область         | Mut | Объявлена| Инициализир.   |\n";
+    out << "| в„–  | РРјСЏ    | РљР°С‚РµРіРѕСЂРёСЏ  | РўРёРї                  | РћР±Р»Р°СЃС‚СЊ         | Mut | РћР±СЉСЏРІР»РµРЅР°| РРЅРёС†РёР°Р»РёР·РёСЂ.   |\n";
     out << "+----+--------+------------+----------------------+-----------------+-----+----------+----------------+\n";
 
     auto pad = [](std::string s, size_t w) {
@@ -487,9 +487,9 @@ void printSymbolTable(std::ostream& out, const std::vector<Symbol>& syms) {
     out << "+----+--------+------------+----------------------+-----------------+-----+----------+----------------+\n";
 }
 
-// Печать триад
+// РџРµС‡Р°С‚СЊ С‚СЂРёР°Рґ
 void printTriads(std::ostream& out, const std::vector<Triad>& triads) {
-    out << "Промежуточное представление (триады):\n";
+    out << "РџСЂРѕРјРµР¶СѓС‚РѕС‡РЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ (С‚СЂРёР°РґС‹):\n";
     for (const auto& t : triads) {
         out << t.number << ") (" << t.op << ", " << t.a1 << ", " << t.a2 << ")\n";
     }

@@ -8,10 +8,10 @@ fn add(a: i32, b: i32) -> i32 {
 }
 
 fn main() {
-    let x: i32 = 59;          // первое слагаемое
+    let x: i32 = 67;         // первое слагаемое
     let y: i32 = 30; 
     let s: i32 = 123;          /* второе слагаемое */
-    let mut sum: i32 = 0;
+    let mut sum: i32 = "abc";
     sum = add(x, y);          // вызов функции
 
     if (sum > 0) && (x != y) {
@@ -28,4 +28,5 @@ fn main() {
     for j in 0..3 {
         println!("{}", j);
     }
+
 }

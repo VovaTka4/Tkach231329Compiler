@@ -30,6 +30,7 @@ int main() {
     std::stringstream buf;
     buf << in.rdbuf();
     std::string source = buf.str();
+    std::ostringstream oss;
 
     // ===== ЛР1: препроцессор =====
     PreprocessResult pre = preprocess(source);
@@ -39,7 +40,9 @@ int main() {
         std::cin.get();
         return 1;
     }
-
+    oss << "ЛР1 ПРЕПРОЦЕССИНГ\n";
+    oss << "Препроцесинг завершен\n";
+    oss << "Очищенный код: \n" << pre.code << "\n";
     // ===== ЛР2: лексический анализатор =====
     LexResult lex = tokenize(pre.code);
     if (!lex.ok()) {
@@ -48,11 +51,17 @@ int main() {
         std::cin.get();
         return 1;
     }
+    oss << "ЛР2\n";
+    oss << "Токенов распознано: " << lex.tokens.size() << "\n";
+    for (auto& t : lex.tokens) {
+        oss << "  [" << typeName(t.type) << "] " << t.value
+            << "  (стр. " << t.line << ", кол. " << t.col << ")\n";
+    }
+    oss << "\n";
 
     // ===== ЛР3: синтаксический анализатор =====
     ParseResult par = parse(lex.tokens);
-
-    std::ostringstream oss;
+    oss << "ЛР3\n";
 
     if (!par.ok()) {
         oss << "Синтаксический анализ завершён с ошибками. Ошибок: "
@@ -71,11 +80,14 @@ int main() {
     }
     else {
         oss << "Синтаксический анализ завершён успешно. Ошибок не найдено.\n\n";
+        oss << "Дерево-AST:\n";
+        printAst(oss, par.ast);
+        oss << "\n";
     }
 
     // ===== ЛР4: семантический анализ + промежуточное представление =====
     SemanticResult sem = analyze(par.ast);
-
+    oss << "ЛР4\n";
     printSymbolTable(oss, sem.symbols);
     oss << "\n";
 
